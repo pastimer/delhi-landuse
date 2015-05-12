@@ -45,28 +45,23 @@ function loadChartByUse(divId) {
     return;
   }
 
-  var d = {'A': 0, 'C': 0, 'G': 0, 'M': 0, 'P': 0, 'PS': 0, 'R': 0, 'T': 0, 'U': 0};
+  var dAreas = {'A': 0, 'C': 0, 'G': 0, 'M': 0, 'P': 0, 'PS': 0, 'R': 0, 'T': 0, 'U': 0};
+
   for (var i = 0; i < dataCLU.length; i++) {
     if (dataCLU[i].area > 0) {
-      d[dataCLU[i].from.useZone] -= dataCLU[i].area;
-      d[dataCLU[i].to.useZone] += dataCLU[i].area;
+      dAreas[dataCLU[i].from.useZone] -= dataCLU[i].area;
+      dAreas[dataCLU[i].to.useZone] += dataCLU[i].area;
     }
   }
 
-  var dataForGraph = [
-     ['Use Zone (as per MPD-2021)', 'Area gained (in Ha)', { role: 'style' }, { role: 'annotation' } ],
-     ['A (Green Belt)', d.A, '#66ff66', 'A' ],
-     ['C (Commercial)', d.C, '#ff0033', 'C' ],
-     ['G (Government)', d.G, '#b87333', 'G' ],
-     ['M (Industrial)', d.M, 'purple', 'M' ],
-     ['P (Recreational)', d.P, 'green', 'P' ],
-     ['PS (Institutional)', d.PS, '#3333cc', 'PS' ],
-     ['R (Residential)', d.R, '#ffff33', 'R' ],
-     ['T (Transportation)', d.T, '#000000', 'T' ],
-     ['U (Utility)', d.U, 'pink', 'U' ]
-  ];
+  var dataUse = getUseZones().map(function(use) {
+    return [use[0] + ' (' + use[1] + ')', dAreas[use[0]] ? dAreas[use[0]] : 0, use[2], use[1]];
+  });
 
-  var data = google.visualization.arrayToDataTable(dataForGraph);
+  var dataHead = ['Use Zone (as per MPD-2021)', 'Area gained (in Ha)', { role: 'style' }, { role: 'annotation' } ];
+  dataUse.splice(0, 0, dataHead);
+
+  var data = google.visualization.arrayToDataTable(dataUse);
 
   var options = {
     height: 550,
@@ -79,7 +74,7 @@ function loadChartByUse(divId) {
     legend: {position: 'none'},
     focusTarget: 'category',
     hAxis: {
-      title: dataForGraph[0][0],
+      title: dataUse[0][0],
       textStyle: {
         fontSize: 12, color: 'black',
         bold: false, italic: false
@@ -92,7 +87,7 @@ function loadChartByUse(divId) {
       slantedTextAngle: 30
     },
     vAxis: {
-      title: dataForGraph[0][1],
+      title: dataUse[0][1],
       textStyle: {
         fontSize: 12, color: 'black',
         bold: false, italic: false
@@ -104,7 +99,7 @@ function loadChartByUse(divId) {
     },
     viewWindowMode: 'pretty',
     minValue: -310, maxValue: 210,
-    animation: {startup: true, duration: 1000}
+    animation: {startup: true, duration: 500}
   };
 
   var chart = new google.visualization.ColumnChart(document.getElementById(divId));
@@ -117,17 +112,13 @@ function loadChartByZone(divId) {
     return;
   }
 
-  var d = {};
-  for (var i = 0; i < dataCLU.length; i++) {
-    if (dataCLU[i].area > 0) {
-      d[dataCLU[i].zone] = d[dataCLU[i].zone] ? d[dataCLU[i].zone] + dataCLU[i].area : dataCLU[i].area;
-    }
-  }
+  var dAreas = d3.nest()
+    .key(function(d) { return d.zone; })
+    .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
+    .map(dataCLU);
 
-  var arrZones = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K-I', 'K-II', 'L', 'M', 'N', 'O', 'P-I', 'P-II'];
-  var dataZone = arrZones.map(function(val) {
-    var area = d[val] ? d[val] : 0;
-    return [val, area, val];
+  var dataZone = getPlanningZones().map(function(zone) {
+    return [zone, dAreas[zone] ? dAreas[zone] : 0, zone];
   });
 
   var dataHead = ['Planning Zone', 'Area (in Ha) changed to a different use', {role: 'annotation'}];
@@ -169,7 +160,7 @@ function loadChartByZone(divId) {
     },
     viewWindowMode: 'pretty',
     minValue: -310, maxValue: 210,
-    animation: {startup: true, duration: 1000}
+    animation: {startup: true, duration: 500}
   };
 
   var chart = new google.visualization.ColumnChart(document.getElementById(divId));
