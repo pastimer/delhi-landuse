@@ -1,3 +1,18 @@
+function getChartsMenu() {
+  var aChartsMenu = [
+    {label: 'Chart by Use', href: "javascript:loadChartByUse('main');"},
+    {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
+    {label: 'Chart by Zone and Use', href: "javascript:loadNvd3ChartByZone('main');"}
+  ];
+
+  var chartsMenu = aChartsMenu.map(function(d) {
+    return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
+  }).join('');
+
+  $('#topMenuCharts').html(chartsMenu);
+  $('#leftMenuCharts').html(chartsMenu);
+}
+
 function getUseZones() {
   var aUseZones = [
      ['A', 'Green Belt', '#66ff66'],

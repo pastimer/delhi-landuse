@@ -49,9 +49,8 @@
 
           <!-- Charts menu -->
           <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Charts<span class="caret"></span></a>
-            <ul class="dropdown-menu" role="menu">
-              <li><a href="javascript:loadChartByUse('main');">Chart by Use Zone</a></li>
-              <li><a href="javascript:loadChartByZone('main');">Chart by Planning Zone</a></li>
+            <ul class="dropdown-menu" role="menu" id="topMenuCharts">
+              <!-- populated by getChartsMenu function -->
             </ul>
           </li>
 
@@ -80,16 +79,12 @@
 <!--
           <li><a href="javascript:loadAnalysisByUse('main');">Analysis by Use Zone</a></li>
           <li><a href="javascript:loadAnalysisByZone('main');">Analysis by Planning Zone</a></li>
+          <li><a href="javascript:aabb('main');">Chart - AABB</a></li>
 -->
         </ul>
 
-        <ul class="nav nav-sidebar">
-          <li><a href="javascript:loadChartByUse('main');">Chart - Use Zone wise</a></li>
-          <li><a href="javascript:loadChartByZone('main');">Chart - Planning Zone wise</a></li>
-          <li><a href="javascript:loadNvd3ChartByZone('main');">Chart - Planning Zone and Use Zone wise</a></li>
-<!--
-          <li><a href="javascript:aabb('main');">Chart - AABB</a></li>
--->
+        <ul class="nav nav-sidebar" id="leftMenuCharts">
+          <!-- populated by getChartsMenu function -->
         </ul>
 
       </div>
@@ -128,6 +123,7 @@
       gvLoaded = true;
     }
 
+    getChartsMenu();
     loadNvd3ChartByZone('main');
   </script>
 
