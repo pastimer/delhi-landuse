@@ -34,7 +34,16 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="javascript:loadCLUData();">CLU Data</a></li>
-          <li><a href="javascript:loadChartByUse('main');">Chart by Use Zone</a></li>
+
+          <!-- Charts menu -->
+          <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Charts<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="javascript:loadChartByUse('main');">Chart by Use Zone</a></li>
+              <li><a href="javascript:loadChartByZone('main');">Chart by Planning Zone</a></li>
+            </ul>
+          </li>
+
+          <li><a href="https://github.com/pastimer/delhi-landuse">Git Repo</a></li>
         </ul>
 
 <!--
