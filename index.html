@@ -9,13 +9,25 @@
 
   <title>Delhi - Land Use</title>
 
-  <!-- Latest compiled and minified CSS -->
+  <!-- Latest compiled and minified Bootstrap CSS and NVD3 css -->
+<!--
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
-
-  <!-- Optional theme -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="https://cdn.rawgit.com/novus/nvd3/v1.7.1/build/nv.d3.css">
+-->
+  <link rel="stylesheet" href="./lib/bootstrap.min.css">
+  <link rel="stylesheet" href="./lib/bootstrap-theme.min.css">
+  <link rel="stylesheet" href="./lib/nv.d3.css">
 
-  <link href="./dashboard.css" rel="stylesheet">
+  <link rel="stylesheet" href="./dashboard.css">
+
+  <!-- d3 js library - required for NVD3 -->
+<!--
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="https://cdn.rawgit.com/novus/nvd3/v1.7.1/build/nv.d3.min.js"></script>
+-->
+  <script src="./lib/d3.min.js" charset="utf-8"></script>
+  <script src="./lib/nv.d3.min.js"></script>
 </head>
 
 <body>
@@ -74,22 +86,32 @@
         <ul class="nav nav-sidebar">
           <li><a href="javascript:loadChartByUse('main');">Chart - Use Zone wise</a></li>
           <li><a href="javascript:loadChartByZone('main');">Chart - Planning Zone wise</a></li>
+          <li><a href="javascript:loadNvd3ChartByZone('main');">Chart - Planning Zone and Use Zone wise</a></li>
+<!--
+          <li><a href="javascript:aabb('main');">Chart - AABB</a></li>
+-->
         </ul>
 
       </div>
 
-      <div id="main" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main"></div>
+      <div id="main" class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2"></div>
     </div>
   </div>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<!--
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-
-  <!-- Latest compiled and minified JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+-->
+  <script src="./lib/jquery.min.js"></script>
+  <script src="./lib/bootstrap.min.js"></script>
 
   <!-- Data for charts and tables from this js object -->
+  <script src="https://cdn.rawgit.com/pastimer/delhi-landuse/417ed59dc0e8b64efe16e9c2d57ddf63f4b1bf2d/data/dataCLU.js"></script>
+  <!-- Use local file for testing -->
+<!--
   <script src="./dataCLU.js"></script>
+-->
 
   <!-- Functions for preparing charts and tables and responding to menu items -->
   <script src="./main.js"></script>
@@ -106,7 +128,7 @@
       gvLoaded = true;
     }
 
-    loadCLUData();
+    loadNvd3ChartByZone('main');
   </script>
 
 </body>
