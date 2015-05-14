@@ -1,16 +1,30 @@
+function getTablesMenu() {
+  var aMenu = [
+    {label: 'Date-wise CLU', href: "javascript:loadCLUByDate('main');"},
+    {label: 'Zone-wise CLU', href: "javascript:loadCLUByZone('main');"}
+  ];
+
+  var sMenu = aMenu.map(function(d) {
+    return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
+  }).join('');
+
+  $('#topMenuTables').html(sMenu);
+  $('#leftMenuTables').html(sMenu);
+}
+
 function getChartsMenu() {
-  var aChartsMenu = [
+  var aMenu = [
     {label: 'Chart by Use', href: "javascript:loadChartByUse('main');"},
     {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
     {label: 'Chart by Zone and Use', href: "javascript:loadNvd3ChartByZone('main');"}
   ];
 
-  var chartsMenu = aChartsMenu.map(function(d) {
+  var sMenu = aMenu.map(function(d) {
     return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
   }).join('');
 
-  $('#topMenuCharts').html(chartsMenu);
-  $('#leftMenuCharts').html(chartsMenu);
+  $('#topMenuCharts').html(sMenu);
+  $('#leftMenuCharts').html(sMenu);
 }
 
 function getUseZones() {
@@ -39,13 +53,37 @@ function loadOverview(divId) {
   $('#' + divId).load('overview.html');
 }
 
-function loadCLUData() {
-  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>SO No.</th><th>Date</th><th>Item no.</th><th>Location</th><th>Zone</th><th>Area (in Ha)</th><th>From</th><th>To</th></tr></thead><tbody>';
-  for (var i = 0; i < dataCLU.length; i++) {
-    tbl += '<tr><td>' + dataCLU[i].SO + '</td><td>' + dataCLU[i].date + '</td><td>' + dataCLU[i].Sl + '</td><td>' + dataCLU[i].location + '</td><td>' + dataCLU[i].zone + '</td><td>' + dataCLU[i].area + '</td><td>' + dataCLU[i].from.useZone + dataCLU[i].from.subCode + '</td><td>' + dataCLU[i].to.useZone + dataCLU[i].to.subCode + '</td></tr>';
-  }
+function createTableHtml(aData) {
+  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>SO No.</th><th>Date</th><th>Item no.</th><th>Location</th><th>Zone</th><th>Area (in Ha)</th><th>From</th><th>To</th><th>Notification</th></tr></thead><tbody>';
+
+  tbl += aData.map(function(d) {
+    var filename = d.date + '-' + d.SO + '.pdf';
+    return '<tr><td>' + d.SO + '</td><td>' + d.date + '</td><td>' + d.Sl + '</td><td>' + d.location + '</td><td>' + d.zone + '</td><td>' + d.area + '</td><td>' + d.from.useZone + d.from.subCode + '</td><td>' + d.to.useZone + d.to.subCode + '</td><td><a target="_blank" href="https://github.com/pastimer/delhi-landuse/blob/master/notifications-clu/' + filename + '">' + filename + '</a></td></tr>';
+  }).join('');
+
   tbl += '</tbody></table></div>';
+
+  return tbl;
+}
+
+function loadCLUByDate() {
+  var tbl = createTableHtml(dataCLU);
   $('#main').html(tbl);
+}
+
+function loadCLUByZone() {
+  var aData = d3.nest()
+    .key(function(d) { return d.zone; })
+    .sortKeys(d3.ascending)
+    .entries(dataCLU);
+
+  var text = aData.map(function(a) {
+    var tbl = '<h2>Zone: ' + a.key + '</h2>';
+    tbl += createTableHtml(a.values);
+    return tbl;
+  }).join('');
+
+  $('#main').html(text);
 }
 
 function loadAnalysisByUse() {
@@ -198,11 +236,11 @@ function loadNvd3ChartByZone(divId) {
 
   var graphData = aUseZones.map(function(d,i) {
     return {
-              key: d[0] + ' (' + d[1] + ')',
-              color: d[2],
-              values: aPZones.map( function(f, j) {
-                return { x: f, y: dAreas[f] ? (dAreas[f][d[0]] ? dAreas[f][d[0]] : 0) : 0 } 
-              })
+      key: d[0] + ' (' + d[1] + ')',
+      color: d[2],
+      values: aPZones.map( function(f, j) {
+        return { x: f, y: dAreas[f] ? (dAreas[f][d[0]] ? dAreas[f][d[0]] : 0) : 0 } 
+      })
     };
   });
 

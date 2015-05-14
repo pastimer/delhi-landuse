@@ -45,7 +45,13 @@
 
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="javascript:loadCLUData();">CLU Data</a></li>
+
+          <!-- Tables menu -->
+          <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Tables<span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu" id="topMenuTables">
+              <!-- populated by getTablesMenu function -->
+            </ul>
+          </li>
 
           <!-- Charts menu -->
           <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Charts<span class="caret"></span></a>
@@ -75,13 +81,17 @@
             <a href="javascript:loadOverview('main');">Overview <span class="sr-only">(current)</span></a>
           </li>
 -->
-          <li><a href="javascript:loadCLUData();">CLU Data</a></li>
+        </ul>
+
+        <ul class="nav nav-sidebar" id="leftMenuTables">
+          <!-- populated by getTablesMenu function -->
+        </ul>
+
 <!--
           <li><a href="javascript:loadAnalysisByUse('main');">Analysis by Use Zone</a></li>
           <li><a href="javascript:loadAnalysisByZone('main');">Analysis by Planning Zone</a></li>
           <li><a href="javascript:aabb('main');">Chart - AABB</a></li>
 -->
-        </ul>
 
         <ul class="nav nav-sidebar" id="leftMenuCharts">
           <!-- populated by getChartsMenu function -->
@@ -102,10 +112,10 @@
   <script src="./lib/bootstrap.min.js"></script>
 
   <!-- Data for charts and tables from this js object -->
-  <script src="https://cdn.rawgit.com/pastimer/delhi-landuse/417ed59dc0e8b64efe16e9c2d57ddf63f4b1bf2d/data/dataCLU.js"></script>
+  <script src="https://cdn.rawgit.com/pastimer/delhi-landuse/62d64e2e04a56dc57e699c33e7b54b5dc15bf926/data/dataCLU.js"></script>
   <!-- Use local file for testing -->
 <!--
-  <script src="./dataCLU.js"></script>
+  <script src="file:///home/user/Desktop/ghStuff/delhi-landuse/data/dataCLU.js"></script>
 -->
 
   <!-- Functions for preparing charts and tables and responding to menu items -->
@@ -123,7 +133,9 @@
       gvLoaded = true;
     }
 
+    getTablesMenu();
     getChartsMenu();
+
     loadNvd3ChartByZone('main');
   </script>
 
