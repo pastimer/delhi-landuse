@@ -14,7 +14,9 @@ function getTablesMenu() {
 
 function getChartsMenu() {
   var aMenu = [
-    {label: 'Chart by Use', href: "javascript:loadChartByUse('main');"},
+    {label: 'Chart by Use (Net)', href: "javascript:loadChartByUse('main','both');"},
+    {label: 'Chart by Use (From)', href: "javascript:loadChartByUse('main','from');"},
+    {label: 'Chart by Use (To)', href: "javascript:loadChartByUse('main','to');"},
     {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
     {label: 'Chart by Zone and Use', href: "javascript:loadNvd3ChartByZone('main');"}
   ];
@@ -89,81 +91,76 @@ function loadCLUByZone() {
 function loadAnalysisByUse() {
 }
 
-function loadAnalysisByZone() {
-}
+function loadChartByUse(divId, direction) {
+  var divChartId = "chartIVGFYjbhjbvhf";
+  $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
-function loadChartByUse(divId) {
-  if (!gvLoaded) {
-    alert('Wait for Google Visualization to load');
-    return;
-  }
+  var dFrom = d3.nest()
+    .key(function(d) { return d.from.useZone; })
+    .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
+    .map(dataCLU);
 
-  var dAreas = {'A': 0, 'C': 0, 'G': 0, 'M': 0, 'P': 0, 'PS': 0, 'R': 0, 'T': 0, 'U': 0};
+  var dTo = d3.nest()
+    .key(function(d) { return d.to.useZone; })
+    .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
+    .map(dataCLU);
 
-  for (var i = 0; i < dataCLU.length; i++) {
-    if (dataCLU[i].area > 0) {
-      dAreas[dataCLU[i].from.useZone] -= dataCLU[i].area;
-      dAreas[dataCLU[i].to.useZone] += dataCLU[i].area;
-    }
-  }
+  var dataUse = getUseZones().map(function(u) {
+    var area = 0;
+    if (direction == 'both' || direction == 'from')
+      area -= parseFloat(dFrom[u[0]]);
+    if (direction == 'both' || direction == 'to')
+      area += parseFloat(dTo[u[0]]);
 
-  var dataUse = getUseZones().map(function(use) {
-    return [use[0] + ' (' + use[1] + ')', dAreas[use[0]] ? dAreas[use[0]] : 0, use[2], use[1]];
+    return {'label': u[0] + ' (' + u[1] + ')', 'value': area};
   });
 
-  var dataHead = ['Use Zone (as per MPD-2021)', 'Area gained (in Ha)', { role: 'style' }, { role: 'annotation' } ];
-  dataUse.splice(0, 0, dataHead);
+  var graphData = [{key: 'Zone-wise net addition of land (in Ha) since MPD-2021', values: dataUse}];
 
-  var data = google.visualization.arrayToDataTable(dataUse);
-
-  var options = {
-    height: 550,
-    chartArea: {left: 60, top: 30, width: '80%', height: '80%'},
-    title: 'Zone-wise net addition of land (in Ha) since MPD-2021',
-    titleTextStyle: {
-      fontSize: 16, color: 'black',
-      bold: true, italic: false
-    },
-    legend: {position: 'none'},
-    focusTarget: 'category',
-    hAxis: {
-      title: dataUse[0][0],
-      textStyle: {
-        fontSize: 12, color: 'black',
-        bold: false, italic: false
-      },
-      titleTextStyle: {
-        fontSize: 14, color: 'black',
-        bold: false, italic: true
-      },
-      slantedText: true,
-      slantedTextAngle: 30
-    },
-    vAxis: {
-      title: dataUse[0][1],
-      textStyle: {
-        fontSize: 12, color: 'black',
-        bold: false, italic: false
-      },
-      titleTextStyle: {
-        fontSize: 14, color: 'black',
-        bold: false, italic: true
-      },
-    },
-    viewWindowMode: 'pretty',
-    minValue: -310, maxValue: 210,
-    animation: {startup: true, duration: 500}
+  var opts = {
+    duration: 500,
+    rotateLabels: 0,
+    margin: {bottom: 100, left: 70},
+    xAxisLabel: 'Use Zone (as per MPD-2021)',
+    yAxisLabel: 'Area gained (in Ha)',
+    colours: getUseZones().map(function(u) { return u[2]; })
   };
 
-  var chart = new google.visualization.ColumnChart(document.getElementById(divId));
-  chart.draw(data, options);
+  var chart;
+  nv.addGraph(function() {
+    chart = nv.models.discreteBarChart()
+      .x(function(d) { return d.label })    //Specify the data accessors.
+      .y(function(d) { return d.value })
+//      .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
+//      .tooltips(false)        //Don't show tooltips
+      .showValues(true)       //...instead, show the bar value right on top of each bar.
+      .color(opts.colours)
+    ;
+
+    chart.xAxis
+      .axisLabel(opts.xAxisLabel)
+    ;
+
+    chart.yAxis
+      .axisLabel(opts.yAxisLabel)
+      .axisLabelDistance(-5)
+      .tickFormat(d3.format(',.01f'))
+    ;
+
+    d3.select('#' + divChartId + ' svg')
+      .datum(graphData)
+      .transition().duration(opts.duration)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
 }
 
 function loadChartByZone(divId) {
-  if (!gvLoaded) {
-    alert('Wait for Google Visualization to load');
-    return;
-  }
+  var divChartId = "chartIVGFYjbhjbvhf";
+  $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
   var dAreas = d3.nest()
     .key(function(d) { return d.zone; })
@@ -171,53 +168,51 @@ function loadChartByZone(divId) {
     .map(dataCLU);
 
   var dataZone = getPlanningZones().map(function(zone) {
-    return [zone, dAreas[zone] ? dAreas[zone] : 0, zone];
+    return {'label': zone, 'value': parseFloat(dAreas[zone]?dAreas[zone]:0)};
   });
 
-  var dataHead = ['Planning Zone', 'Area (in Ha) changed to a different use', {role: 'annotation'}];
-  dataZone.splice(0, 0, dataHead);
+  var graphData = [{key: 'Zone-wise CLU (in Ha) since MPD-2021', values: dataZone}];
 
-  var data = google.visualization.arrayToDataTable(dataZone);
-
-  var options = {
-    height: 550,
-    chartArea: {left: 60, top: 30, width: '80%', height: '80%'},
-    title: 'Zone-wise CLU (in Ha) since MPD-2021',
-    titleTextStyle: {
-      fontSize: 16, color: 'black',
-      bold: true, italic: false
-    },
-    legend: {position: 'none'},
-    focusTarget: 'category',
-    hAxis: {
-      title: dataHead[0],
-      textStyle: {
-        fontSize: 12, color: 'black',
-        bold: false, italic: false
-      },
-      titleTextStyle: {
-        fontSize: 14, color: 'black',
-        bold: false, italic: true
-      }
-    },
-    vAxis: {
-      title: dataHead[1],
-      textStyle: {
-        fontSize: 12, color: 'black',
-        bold: false, italic: false
-      },
-      titleTextStyle: {
-        fontSize: 14, color: 'black',
-        bold: false, italic: true
-      },
-    },
-    viewWindowMode: 'pretty',
-    minValue: -310, maxValue: 210,
-    animation: {startup: true, duration: 500}
+  var opts = {
+    duration: 500,
+    rotateLabels: 0,
+    margin: {bottom: 100, left: 70},
+    xAxisLabel: 'Planning Zone',
+    yAxisLabel: 'Area (in Ha) changed to a different use',
+    colours: getUseZones().map(function(u) { return '#3333cc'; })
   };
 
-  var chart = new google.visualization.ColumnChart(document.getElementById(divId));
-  chart.draw(data, options);
+  var chart;
+  nv.addGraph(function() {
+    chart = nv.models.discreteBarChart()
+      .x(function(d) { return d.label })    //Specify the data accessors.
+      .y(function(d) { return d.value })
+//      .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
+//      .tooltips(false)        //Don't show tooltips
+      .showValues(true)       //...instead, show the bar value right on top of each bar.
+//      .transitionDuration(350) //fails
+      .color(opts.colours)
+    ;
+
+    chart.xAxis
+      .axisLabel(opts.xAxisLabel)
+    ;
+
+    chart.yAxis
+      .axisLabel(opts.yAxisLabel)
+      .axisLabelDistance(-5)
+      .tickFormat(d3.format(',.01f'))
+    ;
+
+    d3.select('#' + divChartId + ' svg')
+      .datum(graphData)
+      .transition().duration(opts.duration)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
 }
 
 /////////////////////////////////////
@@ -250,7 +245,7 @@ function loadNvd3ChartByZone(divId) {
     duration: 500,
     rotateLabels: 0,
     margin: {bottom: 100, left: 70},
-    xAxisLabel: 'Use Zone (as per MPD-2021)',
+    xAxisLabel: 'Planning Zone (as per MPD-2021)',
     yAxisLabel: 'Area (in Ha) changed to a different use'
   };
 
@@ -263,6 +258,10 @@ function loadNvd3ChartByZone(divId) {
       .margin(opts.margin)
       .rotateLabels(opts.rotateLabels)
       .groupSpacing(0.1)
+      .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
+      .tooltips(false)        //Don't show tooltips
+      //.showValues(true)       //fails ...instead, show the bar value right on top of each bar.
+      .stacked(true)
     ;
 
     chart.reduceXTicks(false).staggerLabels(false);
@@ -285,6 +284,7 @@ function loadNvd3ChartByZone(divId) {
 
     d3.select('#' + divChartId + ' svg')
       .datum(graphData)
+      .transition().duration(opts.duration)
       .call(chart);
 
     nv.utils.windowResize(chart.update);
