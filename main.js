@@ -18,7 +18,7 @@ function getChartsMenu() {
     {label: 'Chart by Use (From)', href: "javascript:loadChartByUse('main','from');"},
     {label: 'Chart by Use (To)', href: "javascript:loadChartByUse('main','to');"},
     {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
-    {label: 'Chart by Zone & Use (From)', href: "javascript:loadNvd3ChartByZone('main', 'from');"}
+    {label: 'Chart by Zone & Use (From)', href: "javascript:loadNvd3ChartByZone('main', 'from');"},
     {label: 'Chart by Zone & Use (To)', href: "javascript:loadNvd3ChartByZone('main', 'to');"}
   ];
 
