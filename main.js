@@ -18,7 +18,8 @@ function getChartsMenu() {
     {label: 'Chart by Use (From)', href: "javascript:loadChartByUse('main','from');"},
     {label: 'Chart by Use (To)', href: "javascript:loadChartByUse('main','to');"},
     {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
-    {label: 'Chart by Zone and Use', href: "javascript:loadNvd3ChartByZone('main');"}
+    {label: 'Chart by Zone & Use (From)', href: "javascript:loadNvd3ChartByZone('main', 'from');"}
+    {label: 'Chart by Zone & Use (To)', href: "javascript:loadNvd3ChartByZone('main', 'to');"}
   ];
 
   var sMenu = aMenu.map(function(d) {
@@ -216,13 +217,16 @@ function loadChartByZone(divId) {
 }
 
 /////////////////////////////////////
-function loadNvd3ChartByZone(divId) {
+function loadNvd3ChartByZone(divId, direction) {
   var divChartId = "chartIVGFYjbhjbvhf";
   $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
   var dAreas = d3.nest()
     .key(function(d) { return d.zone; })
-    .key(function(d) { return d.from.useZone; })
+    .key(function(d) {
+      if (direction == 'from') return d.from.useZone;
+      if (direction == 'to') return d.to.useZone;
+    })
     .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
     .map(dataCLU);
 
