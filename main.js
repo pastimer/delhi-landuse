@@ -1,33 +1,52 @@
-function getTablesMenu() {
-  var aMenu = [
-    {label: 'Date-wise CLU', href: "javascript:loadCLUByDate('main');"},
-    {label: 'Zone-wise CLU', href: "javascript:loadCLUByZone('main');"}
-  ];
+var forHtml = {
+  aTables: [
+      {label: 'Date-wise CLU', href: "javascript:loadCLUByDate('#main');"},
+      {label: 'Zone-wise CLU', href: "javascript:loadCLUByZone('#main');"}
+  ],
 
-  var sMenu = aMenu.map(function(d) {
-    return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
-  }).join('');
+  aGraphs: [
+      {label: 'Chart by Use (Net)', href: "javascript:loadChartByUse('#main','both');"},
+      {label: 'Chart by Use (From)', href: "javascript:loadChartByUse('#main','from');"},
+      {label: 'Chart by Use (To)', href: "javascript:loadChartByUse('#main','to');"},
+      {label: 'Chart by Zone', href: "javascript:loadChartByZone('#main');"},
+      {label: 'Chart by Zone & Use (From)', href: "javascript:loadNvd3ChartByZone('#main', 'from');"},
+      {label: 'Chart by Zone & Use (To)', href: "javascript:loadNvd3ChartByZone('#main', 'to');"}
+  ],
 
-  $('#topMenuTables').html(sMenu);
-  $('#leftMenuTables').html(sMenu);
+  createTablesMenu: function() {
+    var sMenu = this.aTables.map(function(d) {
+      return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
+    }).join('');
+
+    $('#topMenuTables').html(sMenu);
+    $('#leftMenuTables').html(sMenu);
+  },
+
+  createChartsMenu: function() {
+    var sMenu = this.aGraphs.map(function(d) {
+      return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
+    }).join('');
+
+    $('#topMenuCharts').html(sMenu);
+    $('#leftMenuCharts').html(sMenu);
+  },
+
+  loadOverview: function(selector) {
+    $(selector).load('overview.html');
+  }
 }
 
-function getChartsMenu() {
-  var aMenu = [
-    {label: 'Chart by Use (Net)', href: "javascript:loadChartByUse('main','both');"},
-    {label: 'Chart by Use (From)', href: "javascript:loadChartByUse('main','from');"},
-    {label: 'Chart by Use (To)', href: "javascript:loadChartByUse('main','to');"},
-    {label: 'Chart by Zone', href: "javascript:loadChartByZone('main');"},
-    {label: 'Chart by Zone & Use (From)', href: "javascript:loadNvd3ChartByZone('main', 'from');"},
-    {label: 'Chart by Zone & Use (To)', href: "javascript:loadNvd3ChartByZone('main', 'to');"}
-  ];
-
-  var sMenu = aMenu.map(function(d) {
-    return '<li><a href="' + d.href + '">' + d.label + '</a></li>';
-  }).join('');
-
-  $('#topMenuCharts').html(sMenu);
-  $('#leftMenuCharts').html(sMenu);
+function flattenCluData(aCLU) {
+  var aa = aCLU.map(function(a) {
+    var z = a.changes.map(function(c) {
+      c.SO = a.SO;
+      c.date = a.date;
+      c.file = a.file;
+      return c;
+    });
+    return z;
+  });
+  return d3.merge(aa);
 }
 
 function getUseZones() {
@@ -52,10 +71,6 @@ function getPlanningZones() {
   return aZones;
 }
 
-function loadOverview(divId) {
-  $('#' + divId).load('overview.html');
-}
-
 function createTableHtml(aData) {
   var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>SO No.</th><th>Date</th><th>Item no.</th><th>Location</th><th>Zone</th><th>Area (in Ha)</th><th>From</th><th>To</th><th>Notification</th></tr></thead><tbody>';
 
@@ -69,32 +84,30 @@ function createTableHtml(aData) {
   return tbl;
 }
 
-function loadCLUByDate() {
-  var tbl = createTableHtml(dataCLU);
-  $('#main').html(tbl);
+function loadCLUByDate(selector) {
+  var tbl = '<h3>Change of Land Use details -- Date-wise</h3>';
+  tbl += createTableHtml(dataCLU);
+  $(selector).html(tbl);
 }
 
-function loadCLUByZone() {
+function loadCLUByZone(selector) {
   var aData = d3.nest()
     .key(function(d) { return d.zone; })
     .sortKeys(d3.ascending)
     .entries(dataCLU);
 
   var text = aData.map(function(a) {
-    var tbl = '<h2>Zone: ' + a.key + '</h2>';
+    var tbl = '<a name="zone' + a.key + '"></a><h3>Zone: ' + a.key + '</h3>';
     tbl += createTableHtml(a.values);
     return tbl;
   }).join('');
 
-  $('#main').html(text);
+  $(selector).html(text);
 }
 
-function loadAnalysisByUse() {
-}
-
-function loadChartByUse(divId, direction) {
+function loadChartByUse(selector, direction) {
   var divChartId = "chartIVGFYjbhjbvhf";
-  $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
+  $(selector).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
   var dFrom = d3.nest()
     .key(function(d) { return d.from.useZone; })
@@ -119,6 +132,7 @@ function loadChartByUse(divId, direction) {
   var graphData = [{key: 'Zone-wise net addition of land (in Ha) since MPD-2021', values: dataUse}];
 
   var opts = {
+    chartContainer: '#' + divChartId + ' svg',
     duration: 500,
     rotateLabels: 0,
     margin: {bottom: 100, left: 70},
@@ -148,7 +162,7 @@ function loadChartByUse(divId, direction) {
       .tickFormat(d3.format(',.01f'))
     ;
 
-    d3.select('#' + divChartId + ' svg')
+    d3.select(opts.chartContainer)
       .datum(graphData)
       .transition().duration(opts.duration)
       .call(chart);
@@ -159,9 +173,9 @@ function loadChartByUse(divId, direction) {
   });
 }
 
-function loadChartByZone(divId) {
+function loadChartByZone(selector) {
   var divChartId = "chartIVGFYjbhjbvhf";
-  $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
+  $(selector).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
   var dAreas = d3.nest()
     .key(function(d) { return d.zone; })
@@ -175,6 +189,7 @@ function loadChartByZone(divId) {
   var graphData = [{key: 'Zone-wise CLU (in Ha) since MPD-2021', values: dataZone}];
 
   var opts = {
+    chartContainer: '#' + divChartId + ' svg',
     duration: 500,
     rotateLabels: 0,
     margin: {bottom: 100, left: 70},
@@ -205,10 +220,16 @@ function loadChartByZone(divId) {
       .tickFormat(d3.format(',.01f'))
     ;
 
-    d3.select('#' + divChartId + ' svg')
+    d3.select(opts.chartContainer)
       .datum(graphData)
       .transition().duration(opts.duration)
       .call(chart);
+
+    chart.discretebar.dispatch.on('elementDblClick', function(e) {
+      //alert('New State:' + JSON.stringify(e));
+      loadCLUByZone('#main');
+      window.location = '#zone' + e.point.label;
+    });
 
     nv.utils.windowResize(chart.update);
 
@@ -217,9 +238,9 @@ function loadChartByZone(divId) {
 }
 
 /////////////////////////////////////
-function loadNvd3ChartByZone(divId, direction) {
+function loadNvd3ChartByZone(selector, direction) {
   var divChartId = "chartIVGFYjbhjbvhf";
-  $('#'+divId).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
+  $(selector).html('<div id="' + divChartId + '" class="with-3d-shadow with-transitions" style="padding: 5px; height: 600px;"><svg></svg></div>');
 
   var dAreas = d3.nest()
     .key(function(d) { return d.zone; })
@@ -243,8 +264,6 @@ function loadNvd3ChartByZone(divId, direction) {
     };
   });
 
-//  console.log('td', graphData);
-
   var opts = {
     duration: 500,
     rotateLabels: 0,
@@ -257,18 +276,18 @@ function loadNvd3ChartByZone(divId, direction) {
   var chart;
   nv.addGraph(function() {
     chart = nv.models.multiBarChart()
-//      .barColor(d3.scale.category20().range())
+      //.barColor(d3.scale.category20().range())
       .duration(opts.duration)
       .margin(opts.margin)
       .rotateLabels(opts.rotateLabels)
       .groupSpacing(0.1)
-      .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
-      .tooltips(false)        //Don't show tooltips
+      .staggerLabels(false)    //Too many bars and not enough room? Try staggering labels.
+      .tooltips(true)        // show tooltips
       //.showValues(true)       //fails ...instead, show the bar value right on top of each bar.
       .stacked(true)
     ;
 
-    chart.reduceXTicks(false).staggerLabels(false);
+    chart.reduceXTicks(false);
 
     chart.xAxis
       .axisLabel(opts.xAxisLabel)
@@ -293,12 +312,17 @@ function loadNvd3ChartByZone(divId, direction) {
 
     nv.utils.windowResize(chart.update);
 
-    chart.dispatch.on('stateChange', function(e) {
-      nv.log('New State:', JSON.stringify(e));
+    chart.multibar.dispatch.on('elementDblClick', function(e) {
+      //alert('New State:' + JSON.stringify(e));
+      loadCLUByZone('#main');
+      window.location = '#zone' + e.point.x;
     });
-    chart.state.dispatch.on('change', function(state){
-      nv.log('state', JSON.stringify(state));
-    });
+
+    //chart.multibar.dispatch.on('elementMouseover', function(e) {
+      //alert('New State:' + JSON.stringify(e));
+      //loadCLUByZone('#main');
+      //window.location = '#zone' + e.point.x;
+    //});
 
     return chart;
   });

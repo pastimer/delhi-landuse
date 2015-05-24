@@ -114,7 +114,10 @@
   <script src="./lib/bootstrap.min.js"></script>
 
   <!-- Data for charts and tables from this js object -->
+<!--
   <script src="https://cdn.rawgit.com/pastimer/delhi-landuse/master/data/dataCLU.js"></script>
+-->
+  <script src="https://cdn.rawgit.com/pastimer/delhi-landuse/7b0fcf5d7bb9db75a378f6f0c096d20ed7d952b0/data/dataCLU.js"></script>
   <!-- Use local file for testing -->
 <!--
   <script src="file:///home/user/Desktop/ghStuff/delhi-landuse/data/dataCLU.js"></script>
@@ -124,10 +127,14 @@
   <script src="./main.js"></script>
 
   <script>
-    getTablesMenu();
-    getChartsMenu();
+    $(document).ready(function() {
+      forHtml.createTablesMenu();
+      forHtml.createChartsMenu();
 
-    loadNvd3ChartByZone('main', 'to');
+      dataCLU = flattenCluData(dataCLU);
+
+      loadNvd3ChartByZone('#main', 'to');
+    });
   </script>
 
 </body>
