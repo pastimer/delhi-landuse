@@ -3,6 +3,7 @@ var forHtml = {
       {label: 'Date-wise CLU', href: "javascript:loadCLUByDate('#main');"},
       {label: 'Use-wise (From) CLU', href: "javascript:loadCLUByUse('#main', 'from');"},
       {label: 'Use-wise (To) CLU', href: "javascript:loadCLUByUse('#main', 'to');"},
+      {label: 'Use-wise (From-To) CLU', href: "javascript:createTableByFromTo('#main');"},
       {label: 'Zone-wise CLU', href: "javascript:loadCLUByZone('#main');"}
   ],
 
@@ -77,6 +78,36 @@ function getPlanningZones() {
   var aZones = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K-I', 'K-II', 'L', 'M', 'N', 'O', 'P-I', 'P-II'];
 
   return aZones;
+}
+
+function createTableByFromTo(selector) {
+  var dAreas = d3.nest()
+    .key(function(d) { return d.from.useZone; })
+    .key(function(d) { return d.to.useZone; })
+    .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
+    .map(dataCLU);
+
+  var aUseZones = gUseZones.getArray();
+
+  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>To&rArr;<br>From&dArr;</th>';
+  tbl += aUseZones.map(function(d,i) {
+    return '<th>' + d[0] + ' (' + d[1] + ')</th>';
+  }).join('');
+  tbl += '</tr></thead><tbody>';
+
+  tbl += aUseZones.map(function(d,i) {
+    var row = '<tr><td><b>' + d[0] + ' (' + d[1] + ')</b></td>';
+    row += aUseZones.map(function(e,i) {
+      var area = (dAreas[d[0]][e[0]] ? dAreas[d[0]][e[0]] : 0);
+      return '<td style="text-align:right">' + area.toFixed(2) + '</td>';
+    }).join('');
+    row += '</tr>';
+
+    return row;
+  }).join('');;
+
+  tbl += '</tbody></table></div>';
+  $(selector).html(tbl);
 }
 
 function createTableHtml(aData) {
@@ -248,7 +279,6 @@ function loadChartByZone(selector) {
 //      .staggerLabels(true)    //Too many bars and not enough room? Try staggering labels.
 //      .tooltips(false)        //Don't show tooltips
       .showValues(true)       //...instead, show the bar value right on top of each bar.
-//      .transitionDuration(350) //fails
       .color(opts.colours)
     ;
 
@@ -293,20 +323,18 @@ function loadNvd3ChartByZone(selector, direction) {
     .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
     .map(dataCLU);
 
-  var aUseZones = gUseZones.getArray();
-  var aPZones = getPlanningZones();
-
-  var graphData = aUseZones.map(function(d,i) {
+  var graphData = gUseZones.getArray().map(function(d,i) {
     return {
       key: d[0] + ' (' + d[1] + ')',
       color: d[2],
-      values: aPZones.map( function(f, j) {
+      values: getPlanningZones().map( function(f, j) {
         return { x: f, y: dAreas[f] ? (dAreas[f][d[0]] ? dAreas[f][d[0]] : 0) : 0 } 
       })
     };
   });
 
   var opts = {
+    chartContainer: '#' + divChartId + ' svg',
     duration: 500,
     rotateLabels: 0,
     margin: {bottom: 100, left: 70},
@@ -325,7 +353,6 @@ function loadNvd3ChartByZone(selector, direction) {
       .groupSpacing(0.1)
       .staggerLabels(false)    //Too many bars and not enough room? Try staggering labels.
       .tooltips(true)        // show tooltips
-      //.showValues(true)       //fails ...instead, show the bar value right on top of each bar.
       .stacked(true)
     ;
 
@@ -343,14 +370,11 @@ function loadNvd3ChartByZone(selector, direction) {
       .tickFormat(d3.format(',.01f'))
     ;
 
-    chart.dispatch.on('renderEnd', function(){
-      nv.log('Render Complete');
-    });
-
-    d3.select('#' + divChartId + ' svg')
+    d3.select(opts.chartContainer)
       .datum(graphData)
       .transition().duration(opts.duration)
-      .call(chart);
+      .call(chart)
+    ;
 
     nv.utils.windowResize(chart.update);
 
