@@ -1,6 +1,8 @@
 var forHtml = {
   aTables: [
       {label: 'Date-wise CLU', href: "javascript:loadCLUByDate('#main');"},
+      {label: 'Use-wise (From) CLU', href: "javascript:loadCLUByUse('#main', 'from');"},
+      {label: 'Use-wise (To) CLU', href: "javascript:loadCLUByUse('#main', 'to');"},
       {label: 'Zone-wise CLU', href: "javascript:loadCLUByZone('#main');"}
   ],
 
@@ -49,21 +51,27 @@ function flattenCluData(aCLU) {
   return d3.merge(aa);
 }
 
-function getUseZones() {
-  var aUseZones = [
-     ['A', 'Green Belt', '#66ff66'],
-     ['C', 'Commercial', '#ff0033'],
-     ['G', 'Government', '#b87333'],
-     ['M', 'Industrial', 'purple'],
-     ['P', 'Recreational', 'green'],
-     ['PS', 'Institutional', '#3333cc'],
-     ['R', 'Residential)', '#ffff33'],
-     ['T', 'Transportation', '#000000'],
-     ['U', 'Utility', 'pink']
-  ];
+var gUseZones = {
+  aUseZones: {
+     'A': ['A', 'Green Belt', '#66ff66'],
+     'C': ['C', 'Commercial', '#ff0033'],
+     'G': ['G', 'Government', '#b87333'],
+     'M': ['M', 'Industrial', 'purple'],
+     'P': ['P', 'Recreational', 'green'],
+     'PS': ['PS', 'Institutional', '#3333cc'],
+     'R': ['R', 'Residential)', '#ffff33'],
+     'T': ['T', 'Transportation', '#000000'],
+     'U': ['U', 'Utility', 'pink']
+  },
 
-  return aUseZones;
-}
+  getArray: function() {
+    return d3.values(this.aUseZones);
+  },
+
+  getKeyValuePairs: function() {
+    return this.aUseZones;
+  }
+};
 
 function getPlanningZones() {
   var aZones = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K-I', 'K-II', 'L', 'M', 'N', 'O', 'P-I', 'P-II'];
@@ -88,6 +96,33 @@ function loadCLUByDate(selector) {
   var tbl = '<h3>Change of Land Use details -- Date-wise</h3>';
   tbl += createTableHtml(dataCLU);
   $(selector).html(tbl);
+}
+
+function loadCLUByUse(selector, direction) {
+  var aData = d3.nest()
+    .key(function(d) {
+      if (direction == 'from') return d.from.useZone;
+      if (direction == 'to') return d.to.useZone;
+    })
+    .sortKeys(d3.ascending)
+    .entries(dataCLU);
+
+  var aUses = gUseZones.getKeyValuePairs();
+
+  var text = aData.map(function(a) {
+    if (!aUses[a.key]) return '';
+
+    var tbl = '<a name="use' + a.key + '"></a><h3>';
+    if (direction == 'from') tbl += 'From Use: ';
+    if (direction == 'to') tbl += 'To Use: ';
+
+    tbl += a.key + ' ' + '(' + aUses[a.key][1] + ')</h3>';
+
+    tbl += createTableHtml(a.values);
+    return tbl;
+  }).join('');
+
+  $(selector).html(text);
 }
 
 function loadCLUByZone(selector) {
@@ -119,7 +154,7 @@ function loadChartByUse(selector, direction) {
     .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
     .map(dataCLU);
 
-  var dataUse = getUseZones().map(function(u) {
+  var dataUse = gUseZones.getArray().map(function(u) {
     var area = 0;
     if (direction == 'both' || direction == 'from')
       area -= parseFloat(dFrom[u[0]]);
@@ -138,7 +173,7 @@ function loadChartByUse(selector, direction) {
     margin: {bottom: 100, left: 70},
     xAxisLabel: 'Use Zone (as per MPD-2021)',
     yAxisLabel: 'Area gained (in Ha)',
-    colours: getUseZones().map(function(u) { return u[2]; })
+    colours: gUseZones.getArray().map(function(u) { return u[2]; })
   };
 
   var chart;
@@ -166,6 +201,13 @@ function loadChartByUse(selector, direction) {
       .datum(graphData)
       .transition().duration(opts.duration)
       .call(chart);
+
+    chart.discretebar.dispatch.on('elementDblClick', function(e) {
+      //alert('New State:' + JSON.stringify(e));
+      if (direction == 'both') return;
+      loadCLUByUse(selector, direction);
+      window.location = '#use' + e.point.label.split(' ')[0];
+    });
 
     nv.utils.windowResize(chart.update);
 
@@ -195,7 +237,7 @@ function loadChartByZone(selector) {
     margin: {bottom: 100, left: 70},
     xAxisLabel: 'Planning Zone',
     yAxisLabel: 'Area (in Ha) changed to a different use',
-    colours: getUseZones().map(function(u) { return '#3333cc'; })
+    colours: gUseZones.getArray().map(function(u) { return '#3333cc'; })
   };
 
   var chart;
@@ -251,7 +293,7 @@ function loadNvd3ChartByZone(selector, direction) {
     .rollup(function(leaves) { return d3.sum(leaves, function(d) {return parseFloat(d.area);})})
     .map(dataCLU);
 
-  var aUseZones = getUseZones();
+  var aUseZones = gUseZones.getArray();
   var aPZones = getPlanningZones();
 
   var graphData = aUseZones.map(function(d,i) {
