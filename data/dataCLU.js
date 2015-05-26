@@ -320,5 +320,8 @@ var dataCLU = [
 {"SO": 1073, "date": "2015-04-23", file: "", changes: [
   {"Sl": "1", "location": "Adjacent to JPN Apex Trauma Centre, Ch. Jhandu Singh Marg, near Safdarjung Enclave" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "PS", "subCode": "1", "subUse": "Hospital"}, "area": 6.05, "zone": "F"},
   {"Sl": "2", "location": "Adjacent to JPN Apex Trauma Centre, Ch. Jhandu Singh Marg, near Safdarjung Enclave" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "PS", "subCode": "", "subUse": "Police Station"}, "area": 0.75, "zone": "F"}
+]},
+{"SO": 1370, "date": "2015-05-21", file: "K-13011/26/2012-DD-I", changes: [
+  {"Sl": "0", "location": "UIDAI Headquarter building at Bangla Sahib Road" , "from": {"useZone": "PS", "subCode": "", "subUse": ""}, "to": {"useZone": "G", "subCode": "2", "subUse": "Govt. Office"}, "area": 0.444749, "zone": "D"}
 ]}
 ];
