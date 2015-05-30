@@ -34,6 +34,12 @@ var forHtml = {
     $('#leftMenuCharts').html(sMenu);
   },
 
+  enablePopovers: function() {
+    $(function () {
+      $('[data-toggle="popover"]').popover();
+    })
+  },
+
   loadOverview: function(selector) {
     $(selector).load('overview.html');
   }
@@ -89,7 +95,7 @@ function createTableByFromTo(selector) {
 
   var aUseZones = gUseZones.getArray();
 
-  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>To&rArr;<br>From&dArr;</th>';
+  var tbl = '<div class="table-responsive"><table class="table table-striped table-bordered table-hover"><thead><tr><th>To&rArr;<br>From&dArr;</th>';
   tbl += aUseZones.map(function(d,i) {
     return '<th>' + d[0] + ' (' + d[1] + ')</th>';
   }).join('');
@@ -111,11 +117,15 @@ function createTableByFromTo(selector) {
 }
 
 function createTableHtml(aData) {
-  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>SO No.</th><th>Date</th><th>Item no.</th><th>Location</th><th>Zone</th><th>Area (in Ha)</th><th>From</th><th>To</th><th>Notification</th></tr></thead><tbody>';
+  var tbl = '<div class="table-responsive"><table class="table table-striped"><thead><tr><th>SO No.</th><th>Date</th><th>&nbsp;</th><th>Item no.</th><th>Location</th><th>Zone</th><th>Area (in Ha)</th><th>From</th><th>To</th></tr></thead><tbody>';
 
   tbl += aData.map(function(d) {
-    var filename = d.date + '-' + d.SO + '.pdf';
-    return '<tr><td>' + d.SO + '</td><td>' + d.date + '</td><td>' + d.Sl + '</td><td>' + d.location + '</td><td>' + d.zone + '</td><td>' + d.area + '</td><td>' + d.from.useZone + d.from.subCode + '</td><td>' + d.to.useZone + d.to.subCode + '</td><td><a target="_blank" href="https://github.com/pastimer/delhi-landuse/blob/master/notifications-clu/' + filename + '">' + filename + '</a></td></tr>';
+    var filename = 'https://cdn.rawgit.com/pastimer/delhi-landuse/master/notifications-clu/' + d.date + '-' + d.SO + '.pdf';
+    var row = '<tr><td>' + d.SO + '(E)</td><td>' + d.date + '</td>';
+    row += '<td><a target="_blank" title="(File no. ' + d.file + ')" href="' + filename + '"><span class="glyphicon glyphicon-file" aria-hidden="true"></span></a></td>';
+//    row += '<a class="btn btn-primary" role="button" data-toggle="popover" data-trigger="focus" title="More Info" data-content="' + d.file + '">Info</a></td>';
+    row += '<td>' + d.Sl + '</td><td>' + d.location + '</td><td>' + d.zone + '</td><td>' + d.area + '</td><td>' + d.from.useZone + d.from.subCode + '</td><td>' + d.to.useZone + d.to.subCode + '</td></tr>';
+    return row;
   }).join('');
 
   tbl += '</tbody></table></div>';
