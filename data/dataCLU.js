@@ -326,5 +326,8 @@ var dataCLU = [
 ]},
 {"SO": 1412, "date": "2015-05-25", file: "K-13011/27/2014-DD-I", changes: [
   {"Sl": "0", "location": "Proposed National Investigation Agency (NIA) Headquarter Building, opposite CGO Complex, opening on Road to JLN  Stadium" , "from": {"useZone": "R", "subCode": "D", "subUse": ""}, "to": {"useZone": "G", "subCode": "2", "subUse": "Govt. Office"}, "area": 0.4191, "zone": "D"}
+]},
+{"SO": 2048, "date": "2015-07-27", file: "K-13011/22/2012-DD-I", changes: [
+{"Sl": "0", "location": "Plot adjacent to Hotel Leela in Moti Bagh" , "from": {"useZone": "T", "subCode": "3", "subUse": "Rail Circulation"}, "to": {"useZone": "R", "subCode": "D", "subUse": ""}, "area": 0.783, "zone": "D"}
 ]}
 ];
