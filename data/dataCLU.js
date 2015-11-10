@@ -355,5 +355,13 @@ var dataCLU = [
   {"Sl": "13(a)", "location": "Pocket 13(a)" , "from": {"useZone": "P", "subCode": "", "subUse": "City Park/District Park/Community Park"}, "to": {"useZone": "PS", "subCode": "1", "subUse": "Educational & Research University/ University Centre, College"}, "area": 0.685056, "zone": "F"},
   {"Sl": "13(b)", "location": "Pocket 13(b)" , "from": {"useZone": "R", "subCode": "D", "subUse": ""}, "to": {"useZone": "PS", "subCode": "1", "subUse": "Educational & Research University/ University Centre, College"}, "area": 7.334588, "zone": "F"},
   {"Sl": "13(c)", "location": "Pocket 13(c)" , "from": {"useZone": "P", "subCode": "", "subUse": "City Park/District Park/Community Park"}, "to": {"useZone": "PS", "subCode": "1", "subUse": "Educational & Research University/ University Centre, College"}, "area": 1.779606, "zone": "F"}
+]},
+{"SO": 3012, "date": "2015-11-04", file: "K-13011/16/2015-DD-I", changes: [
+  {"Sl": "1", "location": "Industrial Area Rohini, Phase-V, Site I-4" , "from": {"useZone": "M", "subCode": "", "subUse": "Industrial"}, "to": {"useZone": "U", "subCode": "4", "subUse": "Solid Waste Management Facility"}, "area": 1.44, "zone": "M"},
+  {"Sl": "2", "location": "Industrial Area Rohini, Phase-V, Site I-5" , "from": {"useZone": "M", "subCode": "", "subUse": "Industrial"}, "to": {"useZone": "U", "subCode": "4", "subUse": "Solid Waste Management Facility"}, "area": 1.21, "zone": "M"}
+]},
+{"SO": 3013, "date": "2015-11-04", file: "K-13011/14/2014-DD-I", changes: [
+  {"Sl": "1", "location": "Pkt. P-2A at Parmeshwari wala Bagh, Azad Pur" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.493445, "zone": "C"},
+  {"Sl": "2", "location": "Pkt. P-2B at Parmeshwari wala Bagh, Azad Pur" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.246986, "zone": "C"}
 ]}
 ];
