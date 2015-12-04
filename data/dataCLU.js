@@ -363,5 +363,9 @@ var dataCLU = [
 {"SO": 3013, "date": "2015-11-04", file: "K-13011/14/2014-DD-I", changes: [
   {"Sl": "1", "location": "Pkt. P-2A at Parmeshwari wala Bagh, Azad Pur" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.493445, "zone": "C"},
   {"Sl": "2", "location": "Pkt. P-2B at Parmeshwari wala Bagh, Azad Pur" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.246986, "zone": "C"}
+]},
+{"SO": 3120, "date": "2015-11-18", file: "K-13011/3/2015-DD-I", changes: [
+  {"Sl": "1", "location": "Pkt. 1 at Mayapuri" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.068070, "zone": "G"},
+  {"Sl": "2", "location": "Pkt. 2 at Mayapuri" , "from": {"useZone": "P", "subCode": "2", "subUse": "District Park"}, "to": {"useZone": "T", "subCode": "3", "subUse": "MRTS Circulation"}, "area": 0.656010, "zone": "G"}
 ]}
 ];
